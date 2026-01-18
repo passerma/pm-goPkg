@@ -1,6 +1,7 @@
 package log
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -145,16 +146,17 @@ func initLog() {
 	ComLoggerClient.AddHook(lfHook)
 
 	if isDEV() {
-		// 开发环境下同时输出到控制台
+		out := os.Stdout
 		ComLoggerClient.SetFormatter(&logrus.TextFormatter{
 			TimestampFormat: "2006-01-02 15:04:05",
 			FullTimestamp:   true,
 			PadLevelText:    true,
 		})
-		ComLoggerClient.SetOutput(os.Stdout)
+		ComLoggerClient.SetOutput(out)
 	} else {
-		// 生产环境不输出到控制台
-		ComLoggerClient.SetOutput(os.NewFile(0, os.DevNull))
+		out, _ := os.OpenFile(os.DevNull, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+		writer := bufio.NewWriter(out)
+		ComLoggerClient.SetOutput(writer)
 	}
 }
 
@@ -192,16 +194,17 @@ func initAccessLog() {
 	AccessLoggerClient.AddHook(lfHook)
 
 	if isDEV() {
-		// 开发环境下同时输出到控制台
+		out := os.Stdout
 		AccessLoggerClient.SetFormatter(&logrus.TextFormatter{
 			TimestampFormat: "2006-01-02 15:04:05",
 			FullTimestamp:   true,
 			PadLevelText:    true,
 		})
-		AccessLoggerClient.SetOutput(os.Stdout)
+		AccessLoggerClient.SetOutput(out)
 	} else {
-		// 生产环境不输出到控制台
-		AccessLoggerClient.SetOutput(os.NewFile(0, os.DevNull))
+		out, _ := os.OpenFile(os.DevNull, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+		writer := bufio.NewWriter(out)
+		AccessLoggerClient.SetOutput(writer)
 	}
 }
 
@@ -253,34 +256,6 @@ func Warn(args ...any) {
 func Warnf(format string, args ...any) {
 	if ComLoggerClient != nil {
 		ComLoggerClient.Warnf(format, args...)
-	}
-}
-
-// Debug 记录调试日志
-func Debug(args ...any) {
-	if ComLoggerClient != nil {
-		ComLoggerClient.Debug(args...)
-	}
-}
-
-// Debugf 记录格式化调试日志
-func Debugf(format string, args ...any) {
-	if ComLoggerClient != nil {
-		ComLoggerClient.Debugf(format, args...)
-	}
-}
-
-// Fatal 记录致命错误日志
-func Fatal(args ...any) {
-	if ComLoggerClient != nil {
-		ComLoggerClient.Fatal(args...)
-	}
-}
-
-// Fatalf 记录格式化致命错误日志
-func Fatalf(format string, args ...any) {
-	if ComLoggerClient != nil {
-		ComLoggerClient.Fatalf(format, args...)
 	}
 }
 
