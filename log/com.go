@@ -77,11 +77,9 @@ func (f *AccessFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	ip := getStringValue(entry.Data, "ip", "0.0.0.0")
 	method := getStringValue(entry.Data, "method", "GET")
 	url := getStringValue(entry.Data, "url", "/")
-	statusCode := getStringValue(entry.Data, "status_code", "200")
-	responseSize := getStringValue(entry.Data, "response_size", "0")
 
-	msg := fmt.Sprintf("[%s] [%s] [%s] [%s] [%s] [%s] %s",
-		timestamp, ip, method, url, statusCode, responseSize, entry.Message)
+	msg := fmt.Sprintf("[%s] [%s] [%s] [%s] %s",
+		timestamp, ip, method, url, entry.Message)
 	return []byte(msg + "\n"), nil
 }
 
@@ -208,8 +206,8 @@ func initAccessLog() {
 	}
 }
 
-// ComLoggerFmt 控制台日志输出函数
-func ComLoggerFmt(s ...any) {
+// Print 控制台打印函数
+func Print(s ...any) {
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
 	timestamp = fmt.Sprintf("[%s] ", timestamp)
 	msg := append([]any{timestamp}, s...)
